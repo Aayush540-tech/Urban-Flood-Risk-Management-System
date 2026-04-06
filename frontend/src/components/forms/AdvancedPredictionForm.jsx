@@ -68,7 +68,7 @@ const AdvancedPredictionForm = ({ onSubmit, isLoading }) => {
   };
 
   return (
-    <Card className="h-[730px] flex flex-col border-climate-border bg-climate-card overflow-hidden">
+    <Card className="h-full flex flex-col border-climate-border bg-climate-card overflow-hidden">
       <CardHeader className="flex-shrink-0 z-10 shadow-sm border-b border-climate-border">
         <CardTitle>Advanced Mode - All 20 Factors</CardTitle>
         <p className="text-sm text-climate-muted mt-1">
@@ -76,7 +76,7 @@ const AdvancedPredictionForm = ({ onSubmit, isLoading }) => {
         </p>
       </CardHeader>
       
-      <CardContent className="flex-1 overflow-y-auto px-6 py-4">
+      <CardContent id="advanced-scroll-area" className="flex-1 overflow-y-auto px-6 py-4 custom-scrollbar">
         <form onSubmit={handleSubmit} className="space-y-8 pb-8 relative">
           
           {sliderGroups.map((group, groupIdx) => (
@@ -97,15 +97,15 @@ const AdvancedPredictionForm = ({ onSubmit, isLoading }) => {
             </div>
           ))}
 
-          <div className="pt-4 sticky bottom-0 z-10 w-full mt-4">
+          <div className="pt-6 mt-4 w-full">
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-climate-accent hover:bg-teal-400 text-climate-dark font-bold py-3 rounded-lg shadow-xl shadow-climate-accent/10 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center h-12 relative"
+              className="w-full bg-gradient-to-r from-teal-500 to-climate-accent hover:from-climate-accent hover:to-blue-500 text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center h-14 uppercase tracking-wider text-sm border border-white/10"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                  <Loader2 className="animate-spin mr-3 h-5 w-5" />
                   Running Deep Analysis...
                 </>
               ) : (

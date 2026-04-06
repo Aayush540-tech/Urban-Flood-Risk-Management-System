@@ -5,3 +5,5 @@ python-multipart
 tensorflow
 numpy
 pandas
+matplotlib
+seaborn

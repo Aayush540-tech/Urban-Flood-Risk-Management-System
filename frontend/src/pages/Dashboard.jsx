@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import BasicPredictionForm from '../components/forms/BasicPredictionForm';
 import AdvancedPredictionForm from '../components/forms/AdvancedPredictionForm';
-import RiskGaugeChart from '../components/charts/RiskGaugeChart';
 import LiveRiskMap from '../components/map/LiveRiskMap';
 import BatchUploadModal from '../components/modals/BatchUploadModal';
+import ResultsPage from './ResultsPage';
 import { api } from '../services/api';
 import { Upload } from 'lucide-react';
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('basic');
+  const [viewMode, setViewMode] = useState('input'); // 'input' | 'results'
+  const [formDataRaw, setFormDataRaw] = useState(null);
+  
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
@@ -17,9 +20,12 @@ const Dashboard = () => {
   const handleBasicSubmit = async (data) => {
     setIsLoading(true);
     setResult(null); 
+    setFormDataRaw(data);
     try {
       const res = await api.predictBasic(data);
       setResult(res);
+      setViewMode('results');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error("Prediction Error:", error);
     } finally {
@@ -30,15 +36,30 @@ const Dashboard = () => {
   const handleAdvancedSubmit = async (data) => {
     setIsLoading(true);
     setResult(null); 
+    setFormDataRaw(data);
     try {
       const res = await api.predictAdvanced(data);
       setResult(res);
+      setViewMode('results');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (error) {
       console.error("Prediction Error:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (viewMode === 'results') {
+    return (
+      <DashboardLayout>
+        <ResultsPage 
+          result={result} 
+          formData={formDataRaw} 
+          onBack={() => setViewMode('input')} 
+        />
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -93,7 +114,7 @@ const Dashboard = () => {
           <LiveRiskMap />
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+        <div className="w-full max-w-4xl mx-auto">
           <div className="h-full">
             {activeTab === 'basic' && (
               <BasicPredictionForm onSubmit={handleBasicSubmit} isLoading={isLoading} />
@@ -101,10 +122,6 @@ const Dashboard = () => {
             {activeTab === 'advanced' && (
               <AdvancedPredictionForm onSubmit={handleAdvancedSubmit} isLoading={isLoading} />
             )}
-          </div>
-
-          <div className="h-full">
-            <RiskGaugeChart result={result} />
           </div>
         </div>
       )}

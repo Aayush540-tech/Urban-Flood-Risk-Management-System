@@ -73,14 +73,49 @@ class AdvancedPredictionRequest(BaseModel):
 # -------------
 # Prediction Logic
 # -------------
+import io
+import base64
+import matplotlib
+matplotlib.use('Agg') # Render without X11
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def generate_matplotlib_chart(factors: list) -> str:
+    """ Generates a sleek dark-mode Matplotlib Density Risk Curve """
+    plt.style.use('dark_background')
+    fig, ax = plt.subplots(figsize=(6, 4))
+    fig.patch.set_facecolor('#030712') # Match Tailwind background
+    ax.set_facecolor('#0f172a')
+    
+    # Plotting risk distribution simulated over an array
+    factor_array = np.array(factors)
+    sns.kdeplot(factor_array, color='#0ea5e9', fill=True, alpha=0.3, ax=ax, linewidth=2)
+    sns.kdeplot(factor_array + 1.5, color='#f43f5e', fill=True, alpha=0.1, ax=ax, linewidth=2, linestyle="--")
+    
+    ax.set_title("Stochastic Risk Variation Array (Matplotlib)", color="#f8fafc", fontsize=10, pad=10)
+    ax.set_xlabel("Impact Value", color="#94a3b8", fontsize=8)
+    ax.set_ylabel("Density", color="#94a3b8", fontsize=8)
+    ax.grid(color='#ffffff', alpha=0.05)
+    
+    for spine in ax.spines.values():
+        spine.set_edgecolor('none')
+
+    plt.tight_layout()
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', dpi=120, transparent=True)
+    plt.close(fig)
+    buf.seek(0)
+    
+    # Convert to base64 string
+    encoded = base64.b64encode(buf.read()).decode('utf-8')
+    return f"data:image/png;base64,{encoded}"
+
 def predict_risk(features: list) -> tuple[float, str]:
     """
     If the ANN model is loaded, passes the features through the neural net.
     Otherwise, falls back to an intelligent heuristic math simulation.
     """
     if ann_model is not None:
-        # Assuming the model expects a (1, N) numpy array
-        # Note: If your model expects normalized data, scaling must be added here.
         input_data = np.array([features], dtype=np.float32)
         prediction = ann_model.predict(input_data)
         final_prob = float(prediction[0][0])
@@ -105,20 +140,19 @@ def predict_risk(features: list) -> tuple[float, str]:
 # -------------
 @app.post("/api/predict/basic")
 async def predict_basic(req: BasicPredictionRequest):
-    # Padding fundamental factors to array based on model. 
-    # If the .h5 model strictly expects 20 inputs, we pad the rest with means (5).
     factors = [req.topography, req.dams, req.population]
     if ann_model is not None:
-        # Assuming model requires 20 columns, extend with 5s
         factors.extend([5] * 17)
         
     probability, severity = predict_risk(factors)
+    mpl_chart_base64 = generate_matplotlib_chart(factors)
     
     origin = "ANN Model" if ann_model else "Heuristic Fallback"
     return {
         "success": True,
         "probability": probability,
-        "insights": f"Predicted risk is {severity}. Calculated via {origin} processing basic topological and infrastructure indicators."
+        "insights": f"Predicted risk is {severity}. Calculated via {origin} processing basic topological and infrastructure indicators.",
+        "matplotlib_charts": [mpl_chart_base64]
     }
 
 @app.post("/api/predict/advanced")
@@ -132,12 +166,14 @@ async def predict_advanced(req: AdvancedPredictionRequest):
         req.ineffectiveDisasterPrep, req.politicalFactors
     ]
     probability, severity = predict_risk(factors)
+    mpl_chart_base64 = generate_matplotlib_chart(factors)
     
     origin = "ANN Model" if ann_model else "Heuristic Fallback"
     return {
         "success": True,
         "probability": probability,
-        "insights": f"Predicted risk is {severity} based on all 20 environmental datasets using {origin} pipeline."
+        "insights": f"Predicted risk is {severity} based on all 20 environmental datasets using {origin} pipeline.",
+        "matplotlib_charts": [mpl_chart_base64]
     }
 
 @app.post("/api/predict/batch")

@@ -52,11 +52,11 @@ const BasicPredictionForm = ({ onSubmit, isLoading }) => {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-climate-primary hover:bg-climate-primaryHover text-white font-medium py-3 rounded-lg shadow-lg shadow-climate-primary/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center h-12"
+              className="w-full bg-gradient-to-r from-climate-primary to-climate-accent hover:from-climate-accent hover:to-blue-500 text-white font-bold py-4 rounded-xl shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-all hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center h-14 uppercase tracking-wider text-sm border border-white/10"
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                  <Loader2 className="animate-spin mr-3 h-5 w-5" />
                   Analyzing Details...
                 </>
               ) : (

@@ -1,27 +1,32 @@
+// src/components/ui/Slider.jsx
 import React from 'react';
-import { cn } from './Card';
 
-const Slider = ({ label, value, onChange, min = 1, max = 10, step = 1, className }) => {
+const Slider = ({ label, value, onChange, min = 1, max = 10, description }) => {
+  const percentage = ((value - min) / (max - min)) * 100;
+
   return (
-    <div className={cn("w-full space-y-2", className)}>
+    <div className="flex flex-col space-y-2 w-full group">
       <div className="flex justify-between items-center">
-        <label className="text-sm font-medium text-climate-text">{label}</label>
-        <span className="text-xs font-semibold px-2 py-1 bg-climate-dark rounded-md text-climate-primary border border-climate-border">
+        <label className="text-[13px] font-semibold text-slate-300 tracking-wide uppercase group-hover:text-climate-accent transition-colors duration-300">{label}</label>
+        <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-climate-accent/10 border border-climate-accent/30 text-climate-accent shadow-[0_0_10px_rgba(6,182,212,0.2)]">
           {value} / {max}
         </span>
       </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full h-2 bg-climate-dark border border-climate-border rounded-lg appearance-none cursor-pointer accent-climate-primary hover:accent-climate-primaryHover focus:outline-none focus:ring-2 focus:ring-climate-primary/50"
-      />
-      <div className="flex justify-between text-xs text-climate-muted px-1 mt-1">
-        <span>Low Impact</span>
-        <span>High Impact</span>
+      
+      {description && <p className="text-xs text-climate-muted">{description}</p>}
+      
+      <div className="relative pt-2 pb-2">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          value={value}
+          onChange={(e) => onChange(parseInt(e.target.value))}
+          className="w-full h-2.5 appearance-none rounded-full outline-none bg-black/50 cursor-pointer shadow-inner border border-white/5 transition-all duration-300 hover:border-white/20"
+          style={{
+             backgroundImage: `linear-gradient(to right, #06b6d4 ${percentage}%, transparent ${percentage}%)`
+          }}
+        />
       </div>
     </div>
   );
