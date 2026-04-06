@@ -38,12 +38,17 @@ export const api = {
    * @param {Object} data - Form data
    */
   async predictAdvanced(data) {
-    await delay(2000);
+    await delay(2500);
     
+    const prob = Math.random();
+    let severity = "Low";
+    if (prob > 0.7) severity = "High";
+    else if (prob > 0.3) severity = "Moderate";
+
     return {
       success: true,
-      probability: Math.random(),
-      insights: "This is a detailed insight for the advanced environmental factors showing complex interactions."
+      probability: prob,
+      insights: `Predicted risk is ${severity}. This detailed insight is synthesized from all 20 environmental factors, indicating complex interactions primarily driven by Urbanization and Drainage Systems.`
     };
   }
 };

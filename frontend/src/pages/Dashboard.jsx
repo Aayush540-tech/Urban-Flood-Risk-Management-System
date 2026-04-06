@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
 import BasicPredictionForm from '../components/forms/BasicPredictionForm';
+import AdvancedPredictionForm from '../components/forms/AdvancedPredictionForm';
 import RiskGaugeChart from '../components/charts/RiskGaugeChart';
 import LiveRiskMap from '../components/map/LiveRiskMap';
+import BatchUploadModal from '../components/modals/BatchUploadModal';
 import { api } from '../services/api';
 import { Upload } from 'lucide-react';
 
@@ -10,12 +12,26 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('basic');
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
 
   const handleBasicSubmit = async (data) => {
     setIsLoading(true);
     setResult(null); 
     try {
       const res = await api.predictBasic(data);
+      setResult(res);
+    } catch (error) {
+      console.error("Prediction Error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAdvancedSubmit = async (data) => {
+    setIsLoading(true);
+    setResult(null); 
+    try {
+      const res = await api.predictAdvanced(data);
       setResult(res);
     } catch (error) {
       console.error("Prediction Error:", error);
@@ -64,7 +80,9 @@ const Dashboard = () => {
           </button>
         </div>
 
-        <button className="flex items-center space-x-2 px-4 py-2 bg-climate-card hover:bg-climate-border text-climate-text border border-climate-border rounded-lg transition-colors text-sm font-medium shadow-sm">
+        <button 
+          onClick={() => setIsBatchModalOpen(true)}
+          className="flex items-center space-x-2 px-4 py-2 bg-climate-card hover:bg-climate-border text-climate-text border border-climate-border rounded-lg transition-colors text-sm font-medium shadow-sm">
           <Upload className="w-4 h-4 text-climate-primary" />
           <span>Batch Upload CSV</span>
         </button>
@@ -77,15 +95,11 @@ const Dashboard = () => {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           <div className="h-full">
-            {activeTab === 'basic' ? (
+            {activeTab === 'basic' && (
               <BasicPredictionForm onSubmit={handleBasicSubmit} isLoading={isLoading} />
-            ) : (
-               <div className="h-full bg-climate-card border border-climate-border rounded-xl p-8 flex flex-col items-center justify-center text-center">
-                 <h3 className="text-xl font-semibold mb-2">Advanced Mode Details</h3>
-                 <p className="text-climate-muted max-w-sm">
-                   The advanced tool will provide all 20 environmental sliders. (Under Construction)
-                 </p>
-               </div>
+            )}
+            {activeTab === 'advanced' && (
+              <AdvancedPredictionForm onSubmit={handleAdvancedSubmit} isLoading={isLoading} />
             )}
           </div>
 
@@ -94,6 +108,12 @@ const Dashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Batch Upload Modal */}
+      <BatchUploadModal 
+        isOpen={isBatchModalOpen} 
+        onClose={() => setIsBatchModalOpen(false)} 
+      />
     </DashboardLayout>
   );
 };
